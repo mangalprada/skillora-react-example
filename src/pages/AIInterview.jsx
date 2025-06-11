@@ -14,16 +14,11 @@ const Page = () => {
 
   if (isPageLoading || !iframeUrl) {
     return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full h-full flex flex-col items-center justify-center"
-      >
+      <div className="w-full h-full flex flex-col items-center justify-center">
         <div className="text-primary-6 z-50 h-full w-full flex items-center justify-center">
           Loading...
         </div>
-      </motion.div>
+      </div>
     );
   }
 

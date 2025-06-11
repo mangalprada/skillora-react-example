@@ -11,6 +11,8 @@ const SkilloraAuthContext = createContext({
 
 export const useSkilloraAuth = () => useContext(SkilloraAuthContext);
 
+const SKILLORA_API_KEY = import.meta.env.VITE_SKILLORA_API_KEY;
+
 export const SkilloraAuthProvider = ({ children }) => {
   const [token, setToken] = useState(null);
   const [userData, setUserData] = useState(null);
@@ -21,13 +23,17 @@ export const SkilloraAuthProvider = ({ children }) => {
     async ({ email, first_name, last_name }) => {
       setTokenLoading(true);
       try {
-        const response = await fetch('/skillora_auth/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ email, first_name, last_name }),
-        });
+        const response = await fetch(
+          'https://api.skillora.ai/api/authenticate-organization-user/',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${SKILLORA_API_KEY}`,
+            },
+            body: JSON.stringify({ email, first_name, last_name }),
+          }
+        );
         if (!response.ok) {
           throw new Error('Failed to generate Skillora auth token');
         }
