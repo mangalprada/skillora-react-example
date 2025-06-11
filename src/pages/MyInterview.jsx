@@ -1,112 +1,45 @@
-import { useState, useEffect, useRef } from 'react';
+import Loader from '@components/UI/loaders/ButtonLoader';
+import EmptyState from '@components/features/student/jobs/EmptyState';
+import { useSkilloraIframe } from '@hooks/use-skillora-iframe';
 
-//organization id: This is the organization id that you can get from https://skillora.ai/org
-const iframeUrl =
-  'https://embed.skillora.ai/my-interviews?organization_id=your-organization-id';
+const BASE_IFRAME_URL =
+  'https://embed.skillora.ai/my-interviews?organization_id=44af13b5-3512-44f0-a8b6-ced9433e7bb5';
 
-const ALLOWED_DOMAINS = [
-  'http://localhost:3001',
-  'http://localhost:3000',
-  'https://skillora.ai',
-  'https://embed.skillora.ai',
-];
+const Page = () => {
+  const {
+    isPageLoading,
+    iframeLoaded,
+    iframeUrl,
+    iframeRef,
+    handleIframeLoad,
+    hasCompletedAllCourses,
+  } = useSkilloraIframe(BASE_IFRAME_URL);
 
-const API_KEY = import.meta.env.VITE_SKILLORA_API_KEY;
+  if (hasCompletedAllCourses === false) {
+    return <EmptyState header="🚫 Interview Access Locked" />;
+  }
 
-const MyInterview = () => {
-  const [loading, setLoading] = useState(true);
-  const [iframeLoaded, setIframeLoaded] = useState(false);
-  const iframeRef = useRef(null);
-  const [isTokenLoading, setIsTokenLoading] = useState(false);
-
-  // Handle postMessage communication with iframe
-  useEffect(() => {
-    const handleMessage = async (event) => {
-      // Verify origin for security
-      if (!ALLOWED_DOMAINS.some((domain) => event.origin.startsWith(domain))) {
-        console.warn('Message from unauthorized origin:', event.origin);
-        return;
-      }
-
-      // Handle TOKEN_EXPIRED request from iframe
-      if (event.data?.type === 'TOKEN_EXPIRED') {
-        console.log('Received TOKEN_EXPIRED from iframe');
-
-        if (isTokenLoading) {
-          console.log('Token generation already in progress...');
-          return;
-        }
-
-        try {
-          console.log('Generating token for iframe authentication...');
-          setIsTokenLoading(true);
-          const response = await fetchToken({
-            email: 'test@test.com',
-            first_name: 'Test',
-            last_name: 'Test',
-          });
-
-          if (iframeRef.current) {
-            const tokenMessage = {
-              type: 'AUTH_TOKEN',
-              token: response.tokens.access,
-              user_data: response.user_data,
-            };
-            iframeRef.current.contentWindow?.postMessage(
-              tokenMessage,
-              event.origin
-            );
-            console.log('Token sent to iframe immediately:', tokenMessage);
-          }
-        } catch (error) {
-          console.error('Error generating token:', error);
-        } finally {
-          setIsTokenLoading(false);
-        }
-      }
-    };
-
-    window.addEventListener('message', handleMessage);
-
-    return () => {
-      window.removeEventListener('message', handleMessage);
-    };
-  }, [isTokenLoading]);
-
-  const fetchToken = async ({ email, first_name, last_name }) => {
-    const response = await fetch(
-      'https://api.skillora.ai/api/authenticate-organization-user/',
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, first_name, last_name }),
-      }
-    );
-    const data = await response.json();
-    return data;
-  };
-
-  const handleIframeLoad = () => {
-    setIframeLoaded(true);
-    setLoading(false);
-    console.log('Iframe loaded successfully');
-  };
-
-  // Container fills the viewport (below header)
-  return (
-    <div className="fixed inset-0 top-24 flex flex-col">
-      {loading && (
-        <div className="absolute inset-0 flex justify-center items-center bg-white text-primary-6 z-50">
-          Loading...
+  if (isPageLoading || !iframeUrl) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full h-full flex flex-col items-center justify-center"
+      >
+        <div className="text-primary-6 z-50 h-full w-full flex items-center justify-center">
+          <Loader isLoading={true} />
         </div>
-      )}
+      </motion.div>
+    );
+  }
+
+  return (
+    <div className="w-full h-full flex flex-col items-center justify-start">
       <iframe
         ref={iframeRef}
         src={iframeUrl}
-        className={`w-full h-full flex-1 border-none transition-opacity duration-300 ${
+        className={`w-full h-full border-none transition-opacity duration-300 ${
           iframeLoaded ? 'opacity-100' : 'opacity-0'
         }`}
         allow="camera; microphone; display-capture; autoplay; clipboard-write"
@@ -114,8 +47,14 @@ const MyInterview = () => {
         sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-downloads allow-modals"
         onLoad={handleIframeLoad}
       />
+
+      {!iframeLoaded && (
+        <div className="text-primary-6 z-50 h-full w-full flex items-center justify-center">
+          <Loader isLoading={true} />
+        </div>
+      )}
     </div>
   );
 };
 
-export default MyInterview;
+export default Page;
