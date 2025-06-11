@@ -1,9 +1,7 @@
-import Loader from '@components/UI/loaders/ButtonLoader';
-import EmptyState from '@components/features/student/jobs/EmptyState';
-import { useSkilloraIframe } from '@hooks/use-skillora-iframe';
+import { useSkilloraIframe } from '../../lib/hooks/use-skillora-iframe';
 
 const BASE_IFRAME_URL =
-  'https://embed.skillora.ai/ai-interview?organization_id=44af13b5-3512-44f0-a8b6-ced9433e7bb5';
+  'https://embed.skillora.ai/ai-interview?organization_id=c160c143-ed0b-46cf-b1de-1d10381edc2e';
 
 const Page = () => {
   const {
@@ -12,12 +10,7 @@ const Page = () => {
     iframeUrl,
     iframeRef,
     handleIframeLoad,
-    hasCompletedAllCourses,
   } = useSkilloraIframe(BASE_IFRAME_URL);
-
-  if (hasCompletedAllCourses === false) {
-    return <EmptyState header="🚫 Interview Access Locked" />;
-  }
 
   if (isPageLoading || !iframeUrl) {
     return (
@@ -28,7 +21,7 @@ const Page = () => {
         className="w-full h-full flex flex-col items-center justify-center"
       >
         <div className="text-primary-6 z-50 h-full w-full flex items-center justify-center">
-          <Loader isLoading={true} />
+          Loading...
         </div>
       </motion.div>
     );
@@ -50,7 +43,7 @@ const Page = () => {
 
       {!iframeLoaded && (
         <div className="text-primary-6 z-50 h-full w-full flex items-center justify-center">
-          <Loader isLoading={true} />
+          Loading...
         </div>
       )}
     </div>
