@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 
-const iframeUrl = 'https://embed.skillora.ai/my-interviews?partner_id=gpvc';
+//organization id: This is the organization id that you can get from https://skillora.ai/org
+const iframeUrl =
+  'https://embed.skillora.ai/my-interviews?organization_id=your-organization-id';
 
 const ALLOWED_DOMAINS = [
   'http://localhost:3001',
