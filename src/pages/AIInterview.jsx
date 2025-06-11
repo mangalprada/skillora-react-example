@@ -23,22 +23,23 @@ const Page = () => {
   }
 
   return (
-    <div className="w-full h-full flex flex-col items-center justify-start">
+    <div className="fixed inset-0 w-full h-full z-0">
       <iframe
         ref={iframeRef}
         src={iframeUrl}
-        className={`w-full h-full border-none transition-opacity duration-300 ${
+        className={`absolute inset-0 w-full h-full border-none transition-opacity duration-300 ${
           iframeLoaded ? 'opacity-100' : 'opacity-0'
         }`}
         allow="camera; microphone; display-capture; autoplay; clipboard-write"
         title="Skillora Practice Platform"
         sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-downloads allow-modals"
         onLoad={handleIframeLoad}
+        style={{ minHeight: 0, minWidth: 0 }}
       />
 
       {!iframeLoaded && (
-        <div className="text-primary-6 z-50 h-full w-full flex items-center justify-center">
-          Loading...
+        <div className="absolute inset-0 flex items-center justify-center bg-white/80 z-10">
+          <span className="text-primary-6">Loading...</span>
         </div>
       )}
     </div>
