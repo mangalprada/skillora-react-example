@@ -9,7 +9,7 @@ function Header() {
   return (
     <header className="bg-white shadow fixed top-0 left-0 w-full z-50">
       <nav className="flex items-center gap-6 p-4">
-        <h1 className="text-xl font-semibold mr-auto">Skillora</h1>
+        <h1 className="text-xl font-semibold">Skillora</h1>
         <NavLink to="/" className={linkClasses} end>
           Home
         </NavLink>
