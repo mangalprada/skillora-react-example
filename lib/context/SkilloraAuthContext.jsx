@@ -7,6 +7,7 @@ const SkilloraAuthContext = createContext({
   isTokenLoading: false,
   generateSkilloraAuthToken: () => Promise.resolve({}),
   getSkilloraInterviewStats: () => Promise.resolve(),
+  createCustomInterview: () => Promise.resolve(null),
 });
 
 export const useSkilloraAuth = () => useContext(SkilloraAuthContext);
@@ -29,7 +30,7 @@ export const SkilloraAuthProvider = ({ children }) => {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              Authorization: `Bearer ${SKILLORA_API_KEY}`,
+              Authorization: `Bearer ${SKILLORA_API_KEY}`, // This for demo purposes only. Do not use API key in client side.
             },
             body: JSON.stringify({ email, first_name, last_name }),
           }
@@ -52,20 +53,71 @@ export const SkilloraAuthProvider = ({ children }) => {
     []
   );
 
+  const createCustomInterview = useCallback(
+    async ({
+      email,
+      focus_area,
+      topic,
+      difficulty_level,
+      target_company,
+      additional_customization,
+    }) => {
+      // This is just a placeholder as we don't have base url
+      // and this function is not used in the iframe hook
+      // but was present in the original apislice.js
+      try {
+        const response = await fetch(
+          `https://api.skillora.ai/api/organization-mock-interview/`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${SKILLORA_API_KEY}`, // This for demo purposes only. Do not use API key in client side.
+            },
+            body: JSON.stringify({
+              email,
+              focus_area,
+              topic,
+              difficulty_level,
+              target_company,
+              additional_customization,
+            }),
+          }
+        );
+        if (!response.ok) {
+          throw new Error('Failed to create custom interview');
+        }
+        const data = await response.json();
+        if (data.tokens && data.tokens.access) {
+          setToken(data.tokens.access);
+        }
+        return data;
+      } catch (error) {
+        console.error(error);
+        // We are re-throwing the error so that the caller can handle it
+        throw error;
+      }
+    },
+    []
+  );
+
   const getSkilloraInterviewStats = useCallback(
     async ({ userId, email }) => {
       // This is just a placeholder as we don't have base url
       // and this function is not used in the iframe hook
       // but was present in the original apislice.js
       try {
-        const response = await fetch(`/skillora_stats/by-user/${userId}/`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ email }),
-        });
+        const response = await fetch(
+          `https://api.skillora.ai/api/skillora_stats/by-user/${userId}/`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ email }),
+          }
+        );
         if (!response.ok) {
           throw new Error('Failed to fetch interview stats');
         }
@@ -85,6 +137,7 @@ export const SkilloraAuthProvider = ({ children }) => {
     isTokenLoading,
     generateSkilloraAuthToken,
     getSkilloraInterviewStats,
+    createCustomInterview,
   };
 
   return (

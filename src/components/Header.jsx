@@ -16,6 +16,9 @@ function Header() {
         <NavLink to="/ai-interview" className={linkClasses}>
           AI Interview
         </NavLink>
+        <NavLink to="/custom-create-interview" className={linkClasses}>
+          Custom Create Interview
+        </NavLink>
         <NavLink to="/my-interview" className={linkClasses}>
           My Interview
         </NavLink>
