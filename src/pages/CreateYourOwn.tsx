@@ -23,7 +23,7 @@ const CreateYourOwn = () => {
 
     try {
       const response = await createCustomInterview(interviewDetails);
-      console.log('Create interview response:', response);
+
       if (response && response.interview_url) {
         const accessToken = response.tokens.access;
         setToken(accessToken);
@@ -43,6 +43,8 @@ const CreateYourOwn = () => {
 
   const handleIframeLoad = () => {
     setIframeLoaded(true);
+
+    // Safely send the token to the iframe
     const tokenMessage = {
       type: 'AUTH_TOKEN',
       token: token,

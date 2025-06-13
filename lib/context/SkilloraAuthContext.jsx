@@ -22,6 +22,11 @@ export const SkilloraAuthProvider = ({ children }) => {
 
   const generateSkilloraAuthToken = useCallback(
     async ({ email, first_name, last_name }) => {
+      // This authenticates the user based on the email, first_name, and last_name
+      // If the user is not found, it creates a new user and returns the token and the user data
+      // returns the token and the user data
+      // The token is used to authenticate the user in the iframe. Token needs to be sent to the iframe in the postMessage function for security reasons.
+      // The user data is used to display the user data in the iframe
       setTokenLoading(true);
       try {
         const response = await fetch(
@@ -62,9 +67,10 @@ export const SkilloraAuthProvider = ({ children }) => {
       target_company,
       additional_customization,
     }) => {
-      // This is just a placeholder as we don't have base url
-      // and this function is not used in the iframe hook
-      // but was present in the original apislice.js
+      // This creates a custom interview for the user based on the details provided
+      // returns the interview url and the token
+      // The token is used to authenticate the user in the iframe. Token needs to be sent to the iframe in the postMessage function for security reasons.
+      // The interview url is used to display the interview in the iframe
       try {
         const response = await fetch(
           `https://api.skillora.ai/api/organization-mock-interview/`,
@@ -103,9 +109,7 @@ export const SkilloraAuthProvider = ({ children }) => {
 
   const getSkilloraInterviewStats = useCallback(
     async ({ userId, email }) => {
-      // This is just a placeholder as we don't have base url
-      // and this function is not used in the iframe hook
-      // but was present in the original apislice.js
+      // This fetches the interview stats for the user based on the userId and email
       try {
         const response = await fetch(
           `https://api.skillora.ai/api/skillora_stats/by-user/${userId}/`,
