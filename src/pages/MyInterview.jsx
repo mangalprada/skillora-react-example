@@ -38,8 +38,8 @@ const Page = () => {
       />
 
       {!iframeLoaded && (
-        <div className="absolute inset-0 flex items-center justify-center bg-white/80 z-10">
-          <span className="text-primary-6">Loading...</span>
+        <div className="absolute inset-0 flex items-center justify-center z-10">
+          <span className="text-white">Loading...</span>
         </div>
       )}
     </div>
