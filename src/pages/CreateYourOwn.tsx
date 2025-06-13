@@ -6,7 +6,8 @@ const CreateYourOwn = () => {
   const [interviewUrl, setInterviewUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [iframeLoaded, setIframeLoaded] = useState(false);
-  const iframeRef = useRef(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [token, setToken] = useState('');
 
   const handleCreateInterview = async () => {
     setIsLoading(true);
@@ -25,14 +26,8 @@ const CreateYourOwn = () => {
       console.log('Create interview response:', response);
       if (response && response.interview_url) {
         const accessToken = response.tokens.access;
-        const url = new URL(response.interview_url);
-        if (accessToken) {
-          url.searchParams.append('token', accessToken);
-        }
-        if (userData) {
-          url.searchParams.append('user_data', JSON.stringify(userData));
-        }
-        setInterviewUrl(url.toString());
+        setToken(accessToken);
+        setInterviewUrl(response.interview_url);
       } else {
         alert(
           'Interview creation failed. The response did not contain an interview URL.'
@@ -48,6 +43,15 @@ const CreateYourOwn = () => {
 
   const handleIframeLoad = () => {
     setIframeLoaded(true);
+    const tokenMessage = {
+      type: 'AUTH_TOKEN',
+      token: token,
+    };
+
+    iframeRef.current?.contentWindow?.postMessage(
+      tokenMessage,
+      'https://embed.skillora.ai'
+    );
   };
 
   if (isLoading) {
