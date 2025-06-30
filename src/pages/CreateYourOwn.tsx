@@ -19,6 +19,7 @@ const CreateYourOwn = () => {
       difficulty_level: 2, // 1: Easy, 2: Medium, 3: Hard
       target_company: 'Meta',
       additional_customization: 'Please focus on redux and context API.',
+      number_of_questions: 5,
     };
 
     try {
