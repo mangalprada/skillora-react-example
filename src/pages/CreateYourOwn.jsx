@@ -29,7 +29,7 @@ const CreateYourOwn = () => {
       const urlObj = new URL(url);
       return urlObj.origin;
     } catch {
-      return 'http://localhost:3000'; // fallback
+      return 'https://skillora.ai/embed'; // fallback
     }
   };
 

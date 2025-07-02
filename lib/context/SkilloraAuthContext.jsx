@@ -31,7 +31,7 @@ export const SkilloraAuthProvider = ({ children }) => {
       setTokenLoading(true);
       try {
         const response = await fetch(
-          'http://localhost:8000/api/authenticate-organization-user/',
+          'https://api.skillora.ai/api/authenticate-organization-user/',
           {
             method: 'POST',
             headers: {
@@ -80,7 +80,7 @@ export const SkilloraAuthProvider = ({ children }) => {
       // The interview url is used to display the interview in the iframe
       try {
         const response = await fetch(
-          `http://localhost:8000/api/organization-mock-interview/`,
+          `https://api.skillora.ai/api/organization-mock-interview/`,
           {
             method: 'POST',
             headers: {
@@ -120,7 +120,7 @@ export const SkilloraAuthProvider = ({ children }) => {
       // This fetches the interview stats for the user based on the userId and email
       try {
         const response = await fetch(
-          `http://localhost:8000/api/skillora_stats/by-user/${userId}/`,
+          `https://api.skillora.ai/api/skillora_stats/by-user/${userId}/`,
           {
             method: 'POST',
             headers: {
