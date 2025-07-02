@@ -27,10 +27,11 @@ export const SkilloraAuthProvider = ({ children }) => {
       // returns the token and the user data
       // The token is used to authenticate the user in the iframe. Token needs to be sent to the iframe in the postMessage function for security reasons.
       // The user data is used to display the user data in the iframe
+
       setTokenLoading(true);
       try {
         const response = await fetch(
-          'https://api.skillora.ai/api/authenticate-organization-user/',
+          'http://localhost:8000/api/authenticate-organization-user/',
           {
             method: 'POST',
             headers: {
@@ -40,15 +41,21 @@ export const SkilloraAuthProvider = ({ children }) => {
             body: JSON.stringify({ email, first_name, last_name }),
           }
         );
+
         if (!response.ok) {
-          throw new Error('Failed to generate Skillora auth token');
+          const errorText = await response.text();
+          console.error('Auth response error:', errorText);
+          throw new Error(
+            `Failed to generate Skillora auth token: ${response.status} ${errorText}`
+          );
         }
         const data = await response.json();
+        console.log('Auth success, setting token and user data');
         setToken(data.tokens.access);
         setUserData(data.user_data);
         return data;
       } catch (error) {
-        console.error(error);
+        console.error('Error in generateSkilloraAuthToken:', error);
         // We are re-throwing the error so that the caller can handle it
         throw error;
       } finally {
@@ -73,7 +80,7 @@ export const SkilloraAuthProvider = ({ children }) => {
       // The interview url is used to display the interview in the iframe
       try {
         const response = await fetch(
-          `https://api.skillora.ai/api/organization-mock-interview/`,
+          `http://localhost:8000/api/organization-mock-interview/`,
           {
             method: 'POST',
             headers: {
@@ -113,7 +120,7 @@ export const SkilloraAuthProvider = ({ children }) => {
       // This fetches the interview stats for the user based on the userId and email
       try {
         const response = await fetch(
-          `https://api.skillora.ai/api/skillora_stats/by-user/${userId}/`,
+          `http://localhost:8000/api/skillora_stats/by-user/${userId}/`,
           {
             method: 'POST',
             headers: {

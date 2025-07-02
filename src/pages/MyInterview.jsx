@@ -1,9 +1,14 @@
 import { useSkilloraIframe } from '../../lib/hooks/use-skillora-iframe';
+import { useSkilloraAuth } from '../../lib/context/SkilloraAuthContext.jsx';
+import { useAuth } from '../../lib/context/AuthContext.jsx';
 
 const BASE_IFRAME_URL =
-  'https://skillora.ai/embed/my-interviews?organization_id=c160c143-ed0b-46cf-b1de-1d10381edc2e';
+  'http://localhost:3000/embed/my-interviews?organization_id=c160c143-ed0b-46cf-b1de-1d10381edc2e';
 
 const Page = () => {
+  const { user } = useAuth();
+  const { isTokenLoading } = useSkilloraAuth();
+
   const {
     isPageLoading,
     iframeLoaded,
@@ -16,7 +21,13 @@ const Page = () => {
     return (
       <div className="w-full h-full flex flex-col items-center justify-center">
         <div className="text-primary-6 z-50 h-full w-full flex items-center justify-center">
-          Loading...
+          <div className="text-center">
+            <div className="mb-4">Loading My Interviews...</div>
+            {isTokenLoading && (
+              <div className="text-sm">Generating authentication token...</div>
+            )}
+            {!user && <div className="text-sm text-red-500">No user found</div>}
+          </div>
         </div>
       </div>
     );
@@ -39,7 +50,12 @@ const Page = () => {
 
       {!iframeLoaded && (
         <div className="absolute inset-0 flex items-center justify-center z-10">
-          <span className="text-white">Loading...</span>
+          <div className="text-center">
+            <span className="text-white block mb-2">
+              Loading My Interviews...
+            </span>
+            <span className="text-white text-sm">Authenticating user...</span>
+          </div>
         </div>
       )}
     </div>
