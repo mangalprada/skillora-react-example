@@ -1,7 +1,7 @@
 import { useSkilloraIframe } from '../../lib/hooks/use-skillora-iframe';
 
 const BASE_IFRAME_URL =
-  'https://embed.skillora.ai/my-interviews?organization_id=c160c143-ed0b-46cf-b1de-1d10381edc2e';
+  'https://skillora.ai/embed/my-interviews?organization_id=c160c143-ed0b-46cf-b1de-1d10381edc2e';
 
 const Page = () => {
   const {

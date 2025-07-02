@@ -53,7 +53,7 @@ const CreateYourOwn = () => {
 
     iframeRef.current?.contentWindow?.postMessage(
       tokenMessage,
-      'https://embed.skillora.ai'
+      'https://skillora.ai'
     );
   };
 

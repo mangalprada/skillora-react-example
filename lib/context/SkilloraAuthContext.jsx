@@ -87,6 +87,7 @@ export const SkilloraAuthProvider = ({ children }) => {
               difficulty_level,
               target_company,
               additional_customization,
+              number_of_questions: 5,
             }),
           }
         );
