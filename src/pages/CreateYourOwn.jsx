@@ -83,6 +83,16 @@ const CreateYourOwn = () => {
           console.error('Error generating token:', error);
         }
       }
+
+      if (event.data?.type === 'NAVIGATE_USER') {
+        const { path } = event.data;
+        if (path) {
+          const skilloraUrl = `https://skillora.ai/embed/${path}`;
+          setInterviewUrl(skilloraUrl);
+        } else {
+          console.warn('NAVIGATE_USER message received but no URL provided');
+        }
+      }
     };
 
     window.addEventListener('message', handleMessage);

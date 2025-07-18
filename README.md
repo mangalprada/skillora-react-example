@@ -166,6 +166,95 @@ The application uses secure iframe embedding with sophisticated communication pa
 2. Parent window sends encrypted token via PostMessage
 3. Iframe authenticates and displays content
 4. Token expiration triggers automatic renewal
+5. Iframe can request navigation to new pages within the same window
+
+### Navigation Handling
+
+The iframe can trigger navigation to different Skillora pages using PostMessage:
+
+```javascript
+// From within the iframe
+window.parent.postMessage(
+  {
+    type: 'NAVIGATE_USER',
+    url: '/my-interviews/123',
+  },
+  '*'
+);
+```
+
+This will navigate the main window to `https://skillora.ai/my-interviews/123` without opening a new tab, providing a seamless user experience.
+
+### Implementation Details
+
+The navigation handling is implemented in the `useSkilloraIframe` hook using the browser's PostMessage API with several security and reliability features:
+
+#### 1. Domain Security Validation
+
+```javascript
+const ALLOWED_DOMAINS = [
+  'http://localhost:3001',
+  'http://localhost:3000',
+  'https://skillora.ai',
+];
+
+// Only process messages from trusted domains
+if (!ALLOWED_DOMAINS.some((domain) => event.origin.startsWith(domain))) {
+  console.log('Message from non-allowed domain, ignoring');
+  return;
+}
+```
+
+#### 2. Message Type Handling
+
+The hook listens for multiple message types from the iframe:
+
+- **`TOKEN_EXPIRED`**: Automatically generates and sends new authentication tokens
+- **`NAVIGATE_USER`**: Handles navigation requests from the iframe
+
+```javascript
+// Navigation message handler
+if (event.data?.type === 'NAVIGATE_USER') {
+  const { url } = event.data;
+  if (url) {
+    const skilloraUrl = `https://skillora.ai${url}`;
+    window.location.href = skilloraUrl;
+  }
+}
+```
+
+#### 3. URL Construction and Validation
+
+- Extracts the relative URL from the message payload
+- Constructs the full Skillora URL by prepending the base domain
+- Validates the URL exists before navigation
+- Uses `window.location.href` for same-window navigation
+
+#### 4. Event Listener Management
+
+The hook properly manages event listeners to prevent memory leaks:
+
+```javascript
+useEffect(() => {
+  const handleMessage = async (event) => {
+    // Message handling logic
+  };
+
+  window.addEventListener('message', handleMessage);
+
+  return () => {
+    window.removeEventListener('message', handleMessage);
+  };
+}, [user, isTokenLoading, generateSkilloraAuthToken]);
+```
+
+#### 5. Error Handling and Logging
+
+- Comprehensive logging of all received messages for debugging
+- Graceful handling of malformed messages
+- Origin validation logging for security monitoring
+
+This implementation ensures secure, reliable communication between the parent application and embedded Skillora iframes while maintaining a seamless user experience.
 
 ### Example Hook Usage
 
