@@ -6,7 +6,6 @@ const SkilloraAuthContext = createContext({
   interviewStats: null,
   isTokenLoading: false,
   generateSkilloraAuthToken: () => Promise.resolve({}),
-  getSkilloraInterviewStats: () => Promise.resolve(),
   createCustomInterview: () => Promise.resolve(null),
 });
 
@@ -17,7 +16,6 @@ const SKILLORA_API_KEY = import.meta.env.VITE_SKILLORA_API_KEY;
 export const SkilloraAuthProvider = ({ children }) => {
   const [token, setToken] = useState(null);
   const [userData, setUserData] = useState(null);
-  const [interviewStats, setInterviewStats] = useState(null);
   const [isTokenLoading, setTokenLoading] = useState(false);
 
   const generateSkilloraAuthToken = useCallback(
@@ -115,40 +113,11 @@ export const SkilloraAuthProvider = ({ children }) => {
     []
   );
 
-  const getSkilloraInterviewStats = useCallback(
-    async ({ userId, email }) => {
-      // This fetches the interview stats for the user based on the userId and email
-      try {
-        const response = await fetch(
-          `https://api.skillora.ai/api/skillora_stats/by-user/${userId}/`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({ email }),
-          }
-        );
-        if (!response.ok) {
-          throw new Error('Failed to fetch interview stats');
-        }
-        const data = await response.json();
-        setInterviewStats(data);
-      } catch (error) {
-        console.error(error);
-      }
-    },
-    [token]
-  );
-
   const value = {
     token,
     userData,
-    interviewStats,
     isTokenLoading,
     generateSkilloraAuthToken,
-    getSkilloraInterviewStats,
     createCustomInterview,
   };
 
