@@ -29,7 +29,7 @@ export const SkilloraAuthProvider = ({ children }) => {
       setTokenLoading(true);
       try {
         const response = await fetch(
-          'https://api.skillora.ai/api/authenticate-organization-user/',
+          'https://api.skillora.ai/v1/partners/auth/users/',
           {
             method: 'POST',
             headers: {
@@ -78,7 +78,7 @@ export const SkilloraAuthProvider = ({ children }) => {
       // The interview url is used to display the interview in the iframe
       try {
         const response = await fetch(
-          `https://api.skillora.ai/api/organization-mock-interview/`,
+          `https://api.skillora.ai/v1/partners/mock-interviews/`,
           {
             method: 'POST',
             headers: {
