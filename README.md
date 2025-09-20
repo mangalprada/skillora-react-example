@@ -122,17 +122,13 @@ const response = await generateSkilloraAuthToken({
 
 1. **User Authentication**
 
-   - `POST /api/authenticate-organization-user/`
+   - `POST /v1/partners/auth/users/`
    - Authenticates users and returns access tokens
 
 2. **Custom Interview Creation**
 
-   - `POST /api/organization-mock-interview/`
+   - `POST /v1/partners/mock-interviews/`
    - Creates custom interviews with specified parameters
-
-3. **Interview Statistics**
-   - `POST /api/skillora_stats/by-user/{userId}/`
-   - Retrieves user interview history and performance data
 
 ### Example: Creating a Custom Interview
 
@@ -177,13 +173,13 @@ The iframe can trigger navigation to different Skillora pages using PostMessage:
 window.parent.postMessage(
   {
     type: 'NAVIGATE_USER',
-    url: '/my-interviews/123',
+    url: '/embed/my-interviews/123',
   },
   '*'
 );
 ```
 
-This will navigate the main window to `https://skillora.ai/my-interviews/123` without opening a new tab, providing a seamless user experience.
+This will navigate the main window to `https://skillora.ai/embed/my-interviews/123` without opening a new tab, providing a seamless user experience.
 
 ### Implementation Details
 
