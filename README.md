@@ -179,7 +179,7 @@ window.parent.postMessage(
 );
 ```
 
-This will navigate the main window to `https://skillora.ai/embed/my-interviews/123` without opening a new tab, providing a seamless user experience.
+This will navigate the main window to `https://app.skillora.ai/embed/my-interviews/123` without opening a new tab, providing a seamless user experience.
 
 ### Implementation Details
 
@@ -192,6 +192,7 @@ const ALLOWED_DOMAINS = [
   'http://localhost:3001',
   'http://localhost:3000',
   'https://skillora.ai',
+  'https://app.skillora.ai',
 ];
 
 // Only process messages from trusted domains
@@ -213,7 +214,7 @@ The hook listens for multiple message types from the iframe:
 if (event.data?.type === 'NAVIGATE_USER') {
   const { url } = event.data;
   if (url) {
-    const skilloraUrl = `https://skillora.ai${url}`;
+    const skilloraUrl = `https://app.skillora.ai${url}`;
     window.location.href = skilloraUrl;
   }
 }
@@ -309,6 +310,7 @@ const ALLOWED_DOMAINS = [
   'http://localhost:3001',
   'http://localhost:3000',
   'https://skillora.ai',
+  'https://app.skillora.ai',
 ];
 ```
 

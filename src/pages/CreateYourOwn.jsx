@@ -6,6 +6,7 @@ const ALLOWED_DOMAINS = [
   'http://localhost:3001',
   'http://localhost:3000',
   'https://skillora.ai',
+  'https://app.skillora.ai',
 ];
 
 const CreateYourOwn = () => {
@@ -29,7 +30,7 @@ const CreateYourOwn = () => {
       const urlObj = new URL(url);
       return urlObj.origin;
     } catch {
-      return 'https://skillora.ai/embed'; // fallback
+      return 'https://app.skillora.ai/embed'; // fallback
     }
   };
 
@@ -87,7 +88,7 @@ const CreateYourOwn = () => {
       if (event.data?.type === 'NAVIGATE_USER') {
         const { path } = event.data;
         if (path) {
-          const skilloraUrl = `https://skillora.ai/embed/${path}`;
+          const skilloraUrl = `https://app.skillora.ai/embed/${path}`;
           setInterviewUrl(skilloraUrl);
         } else {
           console.warn('NAVIGATE_USER message received but no URL provided');

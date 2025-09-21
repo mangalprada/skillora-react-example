@@ -3,7 +3,7 @@ import { useSkilloraAuth } from '../../lib/context/SkilloraAuthContext.jsx';
 import { useAuth } from '../../lib/context/AuthContext.jsx';
 
 const BASE_IFRAME_URL =
-  'https://skillora.ai/embed/ai-interview?organization_id=ORGANIZATION_ID';
+  'https://app.skillora.ai/embed/ai-interview?organization_id=ORGANIZATION_ID';
 
 const Page = () => {
   const { user } = useAuth();
