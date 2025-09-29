@@ -148,6 +148,20 @@ Deletes a specific mock interview.
 
 Retrieves the conversation messages/transcript from a mock interview session.
 
+#### Query Parameters for Video URLs
+
+| Parameter            | Type    | Description                                                       |
+| -------------------- | ------- | ----------------------------------------------------------------- |
+| `include_video_urls` | boolean | Set to `true` to include presigned video URLs ready for embedding |
+| `page`               | integer | Page number (default: 1)                                          |
+| `page_size`          | integer | Items per page (default: 20, max: 100)                            |
+
+**Important**:
+
+- By default, only `video_url` (S3 key) is returned to optimize performance
+- Add `?include_video_urls=true` to get `video_presigned_url` field with ready-to-use URLs
+- Presigned URLs expire in 1 hour and are cached for 50 minutes
+
 ## JavaScript SDK Examples
 
 ### Complete Integration Example
@@ -361,10 +375,19 @@ class SkilliraAPI {
   }
 
   // Get interview messages/transcript
-  async getInterviewMessages(interviewId, page = 1) {
+  async getInterviewMessages(interviewId, page = 1, includeVideoUrls = false) {
+    const params = new URLSearchParams();
+    params.append('page', page);
+
+    if (includeVideoUrls) {
+      params.append('include_video_urls', 'true');
+    }
+
     try {
       const response = await fetch(
-        `${this.baseURL}/partners/mock-interviews/${interviewId}/messages/?page=${page}`,
+        `${
+          this.baseURL
+        }/partners/mock-interviews/${interviewId}/messages/?${params.toString()}`,
         {
           method: 'GET',
           headers: this.getHeaders(),
@@ -519,15 +542,27 @@ const interviewId = 'uuid-of-interview';
 const interviewDetails = await skillora.getInterview(interviewId);
 console.log('Interview details:', interviewDetails);
 
-// Get interview messages/transcript
+// Get interview messages/transcript (without video URLs - faster)
 const messages = await skillora.getInterviewMessages(interviewId);
 console.log('Interview messages:', messages.results);
+
+// Get interview messages WITH video URLs for embedding
+const messagesWithVideos = await skillora.getInterviewMessages(
+  interviewId,
+  1,
+  true
+);
+console.log('Messages with video URLs:', messagesWithVideos.results);
 
 // Paginate through messages if there are many
 let page = 1;
 let allMessages = [];
 while (true) {
-  const messagesPage = await skillora.getInterviewMessages(interviewId, page);
+  const messagesPage = await skillora.getInterviewMessages(
+    interviewId,
+    page,
+    true
+  );
   allMessages.push(...messagesPage.results);
 
   if (!messagesPage.pagination.has_next) {
@@ -535,7 +570,7 @@ while (true) {
   }
   page++;
 }
-console.log('All messages:', allMessages);
+console.log('All messages with videos:', allMessages);
 ```
 
 ## Response Formats
@@ -631,13 +666,16 @@ console.log('All messages:', allMessages);
 
 ### Interview Messages Response
 
+#### Default Response (without video URLs)
+
 ```json
 {
   "results": [
     {
       "id": "msg-uuid",
       "audio_url": "https://skillora.ai/media/audio/interview_audio.mp3",
-      "video_url": "https://skillora.ai/media/video/interview_video.mp4",
+      "video_url": "candidate_123/uuid_video.mp4",
+      "video_presigned_url": null,
       "created_at": "2024-01-15T10:35:00Z",
       "content": "Tell me about yourself and your experience.",
       "html_content": "<p>Tell me about yourself and your experience.</p>",
@@ -645,14 +683,24 @@ console.log('All messages:', allMessages);
       "analysis": "Good opening question to assess communication skills",
       "score": 0,
       "ideal_answer": "An ideal answer would include..."
-    },
+    }
+  ]
+}
+```
+
+#### Response with Video URLs (`?include_video_urls=true`)
+
+```json
+{
+  "results": [
     {
-      "id": "msg-uuid-2",
-      "audio_url": "https://skillora.ai/media/audio/candidate_response.mp3",
-      "video_url": null,
-      "created_at": "2024-01-15T10:36:00Z",
-      "content": "I'm a software engineer with 5 years of experience...",
-      "html_content": "<p>I'm a software engineer with 5 years of experience...</p>",
+      "id": "msg-uuid",
+      "audio_url": "https://skillora.ai/media/audio/interview_audio.mp3",
+      "video_url": "candidate_123/uuid_video.mp4",
+      "video_presigned_url": "https://answer-videos.s3.amazonaws.com/candidate_123/uuid_video.mp4?AWSAccessKeyId=...&Signature=...&Expires=...",
+      "created_at": "2024-01-15T10:35:00Z",
+      "content": "Tell me about yourself and your experience.",
+      "html_content": "<p>Tell me about yourself and your experience.</p>",
       "role": "user",
       "analysis": "Strong response covering relevant experience",
       "score": 85,
@@ -869,7 +917,190 @@ async function createBatchInterviews(skillora, interviewsData) {
 }
 ```
 
-### 5. Webhook Integration (Recommended)
+### 5. Video Integration for Third-Party Websites
+
+#### Basic Video Display
+
+```javascript
+// Get messages with video URLs for embedding
+const messagesWithVideos = await skillora.getInterviewMessages(
+  interviewId,
+  1,
+  true
+);
+
+// Render videos in your website
+messagesWithVideos.results.forEach((message) => {
+  if (message.video_presigned_url) {
+    const videoElement = document.createElement('video');
+    videoElement.src = message.video_presigned_url;
+    videoElement.controls = true;
+    videoElement.preload = 'metadata'; // Only load metadata, not full video
+
+    // Add to your DOM
+    document.getElementById('video-container').appendChild(videoElement);
+  }
+});
+```
+
+#### Optimized Video Loading Strategy
+
+```javascript
+class VideoManager {
+  constructor(skillora) {
+    this.skillora = skillora;
+    this.videoCache = new Map();
+  }
+
+  // Lazy load videos only when user clicks play
+  async setupLazyVideoLoading(interviewId, containerId) {
+    // First, get messages without video URLs (faster)
+    const messages = await this.skillora.getInterviewMessages(interviewId);
+
+    messages.results.forEach((message) => {
+      if (message.video_url) {
+        this.createVideoPlaceholder(message, containerId);
+      }
+    });
+  }
+
+  createVideoPlaceholder(message, containerId) {
+    const container = document.getElementById(containerId);
+
+    // Create video placeholder
+    const placeholder = document.createElement('div');
+    placeholder.className = 'video-placeholder';
+    placeholder.innerHTML = `
+      <div class="video-thumbnail">
+        <button onclick="this.loadVideo('${message.id}')">
+          ▶️ Play Video Response
+        </button>
+        <small>Click to load video</small>
+      </div>
+    `;
+
+    placeholder.loadVideo = async (messageId) => {
+      if (this.videoCache.has(messageId)) {
+        this.showVideo(placeholder, this.videoCache.get(messageId));
+        return;
+      }
+
+      // Fetch video URL on demand
+      const messagesWithVideos = await this.skillora.getInterviewMessages(
+        message.mock_assessment,
+        1,
+        true
+      );
+
+      const messageWithVideo = messagesWithVideos.results.find(
+        (m) => m.id === messageId
+      );
+      if (messageWithVideo?.video_presigned_url) {
+        this.videoCache.set(messageId, messageWithVideo.video_presigned_url);
+        this.showVideo(placeholder, messageWithVideo.video_presigned_url);
+      }
+    };
+
+    container.appendChild(placeholder);
+  }
+
+  showVideo(placeholder, videoUrl) {
+    const video = document.createElement('video');
+    video.src = videoUrl;
+    video.controls = true;
+    video.autoplay = true;
+    video.style.width = '100%';
+    video.style.maxWidth = '600px';
+
+    placeholder.innerHTML = '';
+    placeholder.appendChild(video);
+  }
+}
+
+// Usage
+const videoManager = new VideoManager(skillora);
+await videoManager.setupLazyVideoLoading(interviewId, 'interview-container');
+```
+
+#### React Component Example
+
+```jsx
+import React, { useState, useEffect } from 'react';
+
+const InterviewVideoPlayer = ({ interviewId, skillora }) => {
+  const [messages, setMessages] = useState([]);
+  const [loadingVideos, setLoadingVideos] = useState({});
+
+  useEffect(() => {
+    // Load messages without videos first (faster)
+    skillora.getInterviewMessages(interviewId).then(setMessages);
+  }, [interviewId]);
+
+  const loadVideoUrl = async (messageId) => {
+    setLoadingVideos((prev) => ({ ...prev, [messageId]: true }));
+
+    try {
+      // Fetch video URLs on demand
+      const messagesWithVideos = await skillora.getInterviewMessages(
+        interviewId,
+        1,
+        true
+      );
+
+      const messageWithVideo = messagesWithVideos.results.find(
+        (m) => m.id === messageId
+      );
+
+      setMessages((prevMessages) =>
+        prevMessages.map((msg) =>
+          msg.id === messageId
+            ? {
+                ...msg,
+                video_presigned_url: messageWithVideo.video_presigned_url,
+              }
+            : msg
+        )
+      );
+    } catch (error) {
+      console.error('Failed to load video:', error);
+    } finally {
+      setLoadingVideos((prev) => ({ ...prev, [messageId]: false }));
+    }
+  };
+
+  return (
+    <div className="interview-messages">
+      {messages.results?.map((message) => (
+        <div key={message.id} className="message">
+          <p>{message.content}</p>
+
+          {message.video_url && (
+            <div className="video-section">
+              {message.video_presigned_url ? (
+                <video
+                  src={message.video_presigned_url}
+                  controls
+                  preload="metadata"
+                  style={{ width: '100%', maxWidth: '600px' }}
+                />
+              ) : (
+                <button
+                  onClick={() => loadVideoUrl(message.id)}
+                  disabled={loadingVideos[message.id]}
+                >
+                  {loadingVideos[message.id] ? 'Loading...' : '▶️ Load Video'}
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+};
+```
+
+### 6. Webhook Integration (Recommended)
 
 While not part of the direct API, consider implementing webhooks to receive real-time updates:
 
