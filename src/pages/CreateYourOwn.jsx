@@ -85,13 +85,15 @@ const CreateYourOwn = () => {
         }
       }
 
-      if (event.data?.type === 'NAVIGATE_USER') {
-        const { path } = event.data;
-        if (path) {
-          const skilloraUrl = `https://app.skillora.ai/embed/${path}`;
+      if (event.data?.type === 'SHOW_MOCK_INTERVIEW_ANALYSIS') {
+        const { mock_interview_id } = event.data;
+        if (mock_interview_id) {
+          const skilloraUrl = `https://app.skillora.ai/embed/my-interviews/${mock_interview_id}`;
           setInterviewUrl(skilloraUrl);
         } else {
-          console.warn('NAVIGATE_USER message received but no URL provided');
+          console.warn(
+            'SHOW_MOCK_INTERVIEW_ANALYSIS message received but no interview_id provided'
+          );
         }
       }
     };

@@ -166,24 +166,31 @@ The application uses secure iframe embedding with sophisticated communication pa
 
 ### Navigation Handling
 
-The iframe can trigger navigation to different Skillora pages using PostMessage:
+The iframe can trigger navigation to different Skillora pages using PostMessage. The application handles the `SHOW_MOCK_INTERVIEW_ANALYSIS` message type to seamlessly transition to interview analysis:
 
 ```javascript
 // From within the iframe
 window.parent.postMessage(
   {
-    type: 'NAVIGATE_USER',
-    url: '/embed/my-interviews/123',
+    type: 'SHOW_MOCK_INTERVIEW_ANALYSIS',
+    mock_interview_id: 'interview_id_here',
   },
   '*'
 );
 ```
 
-This will navigate the main window to `https://app.skillora.ai/embed/my-interviews/123` without opening a new tab, providing a seamless user experience.
+When this message is received, the application:
+
+1. **Validates the message**: Checks that the message comes from an allowed domain
+2. **Extracts the interview ID**: Retrieves the `mock_interview_id` from the message payload
+3. **Updates the iframe URL**: Sets the new URL to `https://app.skillora.ai/embed/my-interviews/{mock_interview_id}`
+4. **Maintains authentication**: Preserves the existing authentication token for seamless access
+
+This creates a smooth transition within the same iframe container, allowing users to view their interview analysis without losing their session or opening new tabs.
 
 ### Implementation Details
 
-The navigation handling is implemented in the `useSkilloraIframe` hook using the browser's PostMessage API with several security and reliability features:
+The navigation handling is implemented in the `CreateYourOwn.jsx` component using the browser's PostMessage API with several security and reliability features:
 
 #### 1. Domain Security Validation
 
@@ -204,32 +211,36 @@ if (!ALLOWED_DOMAINS.some((domain) => event.origin.startsWith(domain))) {
 
 #### 2. Message Type Handling
 
-The hook listens for multiple message types from the iframe:
+The component listens for multiple message types from the iframe:
 
 - **`TOKEN_EXPIRED`**: Automatically generates and sends new authentication tokens
-- **`NAVIGATE_USER`**: Handles navigation requests from the iframe
+- **`SHOW_MOCK_INTERVIEW_ANALYSIS`**: Handles navigation to interview analysis pages
 
 ```javascript
-// Navigation message handler
-if (event.data?.type === 'NAVIGATE_USER') {
-  const { url } = event.data;
-  if (url) {
-    const skilloraUrl = `https://app.skillora.ai${url}`;
-    window.location.href = skilloraUrl;
+// Interview analysis navigation handler
+if (event.data?.type === 'SHOW_MOCK_INTERVIEW_ANALYSIS') {
+  const { mock_interview_id } = event.data;
+  if (mock_interview_id) {
+    const skilloraUrl = `https://app.skillora.ai/embed/my-interviews/${mock_interview_id}`;
+    setInterviewUrl(skilloraUrl);
+  } else {
+    console.warn(
+      'SHOW_MOCK_INTERVIEW_ANALYSIS message received but no interview_id provided'
+    );
   }
 }
 ```
 
-#### 3. URL Construction and Validation
+#### 3. URL Construction and State Management
 
-- Extracts the relative URL from the message payload
-- Constructs the full Skillora URL by prepending the base domain
-- Validates the URL exists before navigation
-- Uses `window.location.href` for same-window navigation
+- Extracts the `mock_interview_id` from the message payload
+- Constructs the full Skillora URL using the interview ID: `https://app.skillora.ai/embed/my-interviews/{mock_interview_id}`
+- Updates the component's state to trigger iframe URL change
+- Maintains authentication context for seamless access
 
 #### 4. Event Listener Management
 
-The hook properly manages event listeners to prevent memory leaks:
+The component properly manages event listeners to prevent memory leaks:
 
 ```javascript
 useEffect(() => {
@@ -253,11 +264,29 @@ useEffect(() => {
 
 This implementation ensures secure, reliable communication between the parent application and embedded Skillora iframes while maintaining a seamless user experience.
 
-### Example Hook Usage
+### Example Component Usage
+
+The interview analysis navigation is implemented directly in the `CreateYourOwn.jsx` component:
 
 ```javascript
-const { isPageLoading, iframeLoaded, iframeUrl, iframeRef, handleIframeLoad } =
-  useSkilloraIframe(BASE_IFRAME_URL);
+// Component state for managing iframe URL
+const [interviewUrl, setInterviewUrl] = useState('');
+
+// Message handler for iframe communication
+useEffect(() => {
+  const handleMessage = async (event) => {
+    if (event.data?.type === 'SHOW_MOCK_INTERVIEW_ANALYSIS') {
+      const { mock_interview_id } = event.data;
+      if (mock_interview_id) {
+        const skilloraUrl = `https://app.skillora.ai/embed/my-interviews/${mock_interview_id}`;
+        setInterviewUrl(skilloraUrl);
+      }
+    }
+  };
+
+  window.addEventListener('message', handleMessage);
+  return () => window.removeEventListener('message', handleMessage);
+}, []);
 ```
 
 ## 📱 Pages and Features
