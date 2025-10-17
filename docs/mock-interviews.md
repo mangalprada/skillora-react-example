@@ -85,6 +85,7 @@ Creates a new mock interview session. Different focus areas require different pa
 - `industry` (string, optional)
 - `target_company` (string, optional)
 - `additional_customization` (string, optional)
+- `number_of_questions` (integer, optional, min: 1, max: 10, default: 10)
 
 **For SKILL focus area:**
 
@@ -92,12 +93,14 @@ Creates a new mock interview session. Different focus areas require different pa
 - `difficulty_level` (integer, optional: 1=Easy, 2=Medium, 3=Hard)
 - `target_company` (string, optional)
 - `additional_customization` (string, optional)
+- `number_of_questions` (integer, optional, min: 1, max: 10, default: 10)
 
 **For UNIVERSITY focus area:**
 
 - `university` (string, required)
 - `program` (string, required)
 - `additional_customization` (string, optional)
+- `number_of_questions` (integer, optional, min: 1, max: 10, default: 10)
 
 **For BEHAVIOURAL focus area:**
 
@@ -108,12 +111,7 @@ Creates a new mock interview session. Different focus areas require different pa
 - `industry` (string, optional)
 - `target_company` (string, optional)
 - `additional_customization` (string, optional)
-
-**For RESUME focus area:**
-
-- `resume` (object, optional)
-- `target_company` (string, optional)
-- `additional_customization` (string, optional)
+- `number_of_questions` (integer, optional, min: 1, max: 10, default: 10)
 
 ### List Mock Interviews
 
