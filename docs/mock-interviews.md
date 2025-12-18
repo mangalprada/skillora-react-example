@@ -84,6 +84,7 @@ Creates a new mock interview session. Different focus areas require different pa
 - `years_of_experience` (integer, required)
 - `industry` (string, optional)
 - `target_company` (string, optional)
+- `resume` (string, optional, plain text containing resume content)
 - `additional_customization` (string, optional)
 - `number_of_questions` (integer, optional, min: 1, max: 10, default: 10)
 
