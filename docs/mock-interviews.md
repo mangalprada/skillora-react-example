@@ -95,6 +95,13 @@ Creates a new mock interview session. Different focus areas require different pa
 - `additional_customization` (string, optional)
 - `number_of_questions` (integer, optional, min: 1, max: 10, default: 10)
 
+**For RESUME focus area:**
+
+- `resume` (string, required, plain text containing resume content)
+- `target_company` (string, optional)
+- `additional_customization` (string, optional)
+- `number_of_questions` (integer, optional, min: 1, max: 10, default: 10)
+
 **For UNIVERSITY focus area:**
 
 - `university` (string, required)
