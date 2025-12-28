@@ -63,9 +63,9 @@ const CreateYourOwn = () => {
 
         try {
           const response = await generateSkilloraAuthToken({
-            email: user?.email || 'test.user@example.com',
-            first_name: user?.first_name || 'Test',
-            last_name: user?.last_name || 'User',
+            email: user?.email || 'john.doe@example.com',
+            first_name: user?.first_name || 'John',
+            last_name: user?.last_name || 'Doe',
           });
 
           if (iframeRef.current) {
@@ -152,10 +152,55 @@ const CreateYourOwn = () => {
     setIsCreatingInterview(true);
 
     const interviewDetails = {
-      email: user?.email || 'test.user@example.com',
-      focus_area: 'SKILL', // Acceptable values: SKILL, JOB, BEHAVIORAL
-      topic: 'React State Management',
-      difficulty_level: 2, // 1: Easy, 2: Medium, 3: Hard
+      email: user?.email || 'john.doe@example.com',
+      focus_area: 'RESUME', // Acceptable values: JOB, SKILL, BEHAVIORAL, RESUME
+      resume: `John Doe, Full-Stack Developer
+Pune | +17079777777 | john.doe@example.com | linkedin.com/in/john-doe/ | github.com/john-doe
+Profile
+Full-stack developer with four years of experience and founder of Skillora.ai, an AI-powered mock interview platform. Specialized in building applications using React.js, TypeScript, Redux, Python, and Django. Passionate about creating responsive, intuitive web applications and thriving in collaborative environments while exploring new technologies.
+Experience
+FOUNDER | SKILLORA.AI | SEP 2023 - PRESENT
+·
+Developed the Skillora.ai platform end-to-end using Next.js for the frontend and Django for the backend.
+·
+Integrated with OpenAI APIs for text generation, TTS, and transcription, and utilized PostgreSQL as the database.
+·
+Created promotional content to attract and engage users, launched it on Product Hunt, and continuously improved the platform based on user feedback.
+FRONTEND DEVELOPER | AKSELERAN | DEC 2022 - SEP 2023
+·
+Developed the Akseleran group website from scratch using React.js, CSS, and JavaScript.
+·
+Developed and maintained the Akseleran consumer app using React.js, CSS, and JavaScript, ensuring seamless user experiences across various devices and browsers.
+·
+Optimized website performance through route-based code splitting, resulting in a decrease in page load time.
+SOFTWARE CONSULTANT | AVOMA | APR 2022 - SEP 2022
+·
+Created beautiful UI components and interactions using React.js, CSS, JavaScript, and Redux.
+·
+Worked closely with UX/UI designers to implement pixel-perfect designs and maintained a consistent user interface.
+·
+Conducted code reviews and provided constructive feedback, improving code quality and efficiency.
+CO-FOUNDER | GAMEBIG | SEP 2020 - MAR 2022
+·
+Developed features such as messaging, following, authentication, find teammates and more.
+·
+Integrated web applications with third-party services such as Sentry and Pusher.
+·
+Built a beautiful, intuitive, responsive, and performant website.
+·
+Implemented Firebase as the backend using Firestore, cloud functions, and cloud messaging.
+FRONTEND DEVELOPER | WISEDOC | FEB 2020 - SEP 2020
+·
+Built a rich text editor using Slate.js in React.js.
+·
+Built user-friendly UI components and interactions using React.js, Redux, and other modern JavaScript libraries.
+·
+Contributed to the development of a new feature for an existing web application, enhancing its functionality and usability.
+Education
+BACHELOR OF TECHNOLOGY | ELECTRONICS AND TELECOMMUNICATIONS | VSSUT, BURLA | Aug, 2015 - May, 2019
+Skills
+HTML, CSS, JavaScript, React.js, Next.js, Redux, Tailwind CSS,
+Generative AI, Python & Django`,
       target_company: 'Meta',
       additional_customization: 'Please focus on redux and context API.',
       number_of_questions: 5,

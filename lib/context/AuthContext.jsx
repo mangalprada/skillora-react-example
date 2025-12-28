@@ -10,9 +10,9 @@ export const useAuth = () => useContext(AuthContext);
 // In a real app, you would fetch the user from an API
 export const AuthProvider = ({ children }) => {
   const [user] = useState({
-    email: 'test.user@example.com',
-    first_name: 'Test',
-    last_name: 'User',
+    email: 'john.doe@example.com',
+    first_name: 'John',
+    last_name: 'Doe',
   });
 
   return (
