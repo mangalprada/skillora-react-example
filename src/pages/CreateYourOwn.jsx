@@ -153,6 +153,8 @@ const CreateYourOwn = () => {
 
     const interviewDetails = {
       email: user?.email || 'john.doe@example.com',
+      language: 'en-us',
+      interviewer_gender: 'female',
       focus_area: 'RESUME', // Acceptable values: JOB, SKILL, BEHAVIORAL, RESUME
       resume: `John Doe, Full-Stack Developer
 Pune | +17079777777 | john.doe@example.com | linkedin.com/in/john-doe/ | github.com/john-doe

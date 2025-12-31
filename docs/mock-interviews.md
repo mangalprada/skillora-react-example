@@ -87,6 +87,22 @@ Creates a new mock interview session. Different focus areas require different pa
 - `resume` (string, optional, plain text containing resume content)
 - `additional_customization` (string, optional)
 - `number_of_questions` (integer, optional, min: 1, max: 10, default: 10)
+- `interviewer_gender` (one of male or female, optional, default: female)
+- `language` (string, optional, specifies interview language; default: `'en-us'`. Supported values are:
+  - `'en-us'` (English (US))
+  - `'en-uk'` (English (UK))
+  - `'en-in'` (English (Indian))
+  - `'en-au'` (English (Australian))
+  - `'hi'` (Hindi)
+  - `'ta'` (Tamil)
+  - `'bn'` (Bengali)
+  - `'te'` (Telugu)
+  - `'gu'` (Gujarati)
+  - `'kn'` (Kannada)
+  - `'ml'` (Malayalam)
+  - `'mr'` (Marathi)
+  - `'pa'` (Punjabi)  
+    )
 
 **For SKILL focus area:**
 
@@ -95,6 +111,22 @@ Creates a new mock interview session. Different focus areas require different pa
 - `target_company` (string, optional)
 - `additional_customization` (string, optional)
 - `number_of_questions` (integer, optional, min: 1, max: 10, default: 10)
+- `interviewer_gender` (one of male or female, optional, default: female)
+- `language` (string, optional, specifies interview language; default: `'en-us'`. Supported values are:
+  - `'en-us'` (English (US))
+  - `'en-uk'` (English (UK))
+  - `'en-in'` (English (Indian))
+  - `'en-au'` (English (Australian))
+  - `'hi'` (Hindi)
+  - `'ta'` (Tamil)
+  - `'bn'` (Bengali)
+  - `'te'` (Telugu)
+  - `'gu'` (Gujarati)
+  - `'kn'` (Kannada)
+  - `'ml'` (Malayalam)
+  - `'mr'` (Marathi)
+  - `'pa'` (Punjabi)  
+    )
 
 **For RESUME focus area:**
 
@@ -102,6 +134,22 @@ Creates a new mock interview session. Different focus areas require different pa
 - `target_company` (string, optional)
 - `additional_customization` (string, optional)
 - `number_of_questions` (integer, optional, min: 1, max: 10, default: 10)
+- `interviewer_gender` (one of male or female, optional, default: female)
+- `language` (string, optional, specifies interview language; default: `'en-us'`. Supported values are:
+  - `'en-us'` (English (US))
+  - `'en-uk'` (English (UK))
+  - `'en-in'` (English (Indian))
+  - `'en-au'` (English (Australian))
+  - `'hi'` (Hindi)
+  - `'ta'` (Tamil)
+  - `'bn'` (Bengali)
+  - `'te'` (Telugu)
+  - `'gu'` (Gujarati)
+  - `'kn'` (Kannada)
+  - `'ml'` (Malayalam)
+  - `'mr'` (Marathi)
+  - `'pa'` (Punjabi)  
+    )
 
 **For UNIVERSITY focus area:**
 
@@ -109,6 +157,22 @@ Creates a new mock interview session. Different focus areas require different pa
 - `program` (string, required)
 - `additional_customization` (string, optional)
 - `number_of_questions` (integer, optional, min: 1, max: 10, default: 10)
+- `interviewer_gender` (one of male or female, optional, default: female)
+- `language` (string, optional, specifies interview language; default: `'en-us'`. Supported values are:
+  - `'en-us'` (English (US))
+  - `'en-uk'` (English (UK))
+  - `'en-in'` (English (Indian))
+  - `'en-au'` (English (Australian))
+  - `'hi'` (Hindi)
+  - `'ta'` (Tamil)
+  - `'bn'` (Bengali)
+  - `'te'` (Telugu)
+  - `'gu'` (Gujarati)
+  - `'kn'` (Kannada)
+  - `'ml'` (Malayalam)
+  - `'mr'` (Marathi)
+  - `'pa'` (Punjabi)  
+    )
 
 **For BEHAVIOURAL focus area:**
 
@@ -120,6 +184,22 @@ Creates a new mock interview session. Different focus areas require different pa
 - `target_company` (string, optional)
 - `additional_customization` (string, optional)
 - `number_of_questions` (integer, optional, min: 1, max: 10, default: 10)
+- `interviewer_gender` (one of male or female, optional, default: female)
+- `language` (string, optional, specifies interview language; default: `'en-us'`. Supported values are:
+  - `'en-us'` (English (US))
+  - `'en-uk'` (English (UK))
+  - `'en-in'` (English (Indian))
+  - `'en-au'` (English (Australian))
+  - `'hi'` (Hindi)
+  - `'ta'` (Tamil)
+  - `'bn'` (Bengali)
+  - `'te'` (Telugu)
+  - `'gu'` (Gujarati)
+  - `'kn'` (Kannada)
+  - `'ml'` (Malayalam)
+  - `'mr'` (Marathi)
+  - `'pa'` (Punjabi)  
+    )
 
 ### List Mock Interviews
 

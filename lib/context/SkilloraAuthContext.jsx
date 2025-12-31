@@ -72,6 +72,8 @@ export const SkilloraAuthProvider = ({ children }) => {
       target_company,
       additional_customization,
       resume,
+      language,
+      interviewer_gender,
     }) => {
       // This creates a custom interview for the user based on the details provided
       // returns the interview url and the token
@@ -95,6 +97,8 @@ export const SkilloraAuthProvider = ({ children }) => {
               additional_customization,
               number_of_questions: 5,
               resume,
+              language,
+              interviewer_gender,
             }),
           }
         );
