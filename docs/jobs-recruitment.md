@@ -1,8 +1,8 @@
-# Skillora Partner Integration API - Mock Interviews
+# Skillora Partner Integration API - Jobs & Recruitment
 
-A comprehensive guide for integrating Skillora's Mock Interview API into your JavaScript applications. This API supports both API key and JWT token authentication methods.
+A comprehensive guide for integrating Skillora's Job Interview and Resume-based Interview API into your JavaScript applications. This API supports both API key and JWT token authentication methods.
 
-This document covers **SKILL**, **UNIVERSITY**, and **BEHAVIOURAL** focus areas. For job-specific and resume-based interviews, see [Jobs & Recruitment](./jobs-recruitment.md).
+This document covers **JOB** and **RESUME** focus areas. For skill-based, university, and behavioral interviews, see [Mock Interviews](./mock-interviews.md).
 
 ## Table of Contents
 
@@ -26,10 +26,10 @@ This document covers **SKILL**, **UNIVERSITY**, and **BEHAVIOURAL** focus areas.
 
 | Method | Endpoint                                   | Description                       |
 | ------ | ------------------------------------------ | --------------------------------- |
-| POST   | `/partners/mock-interviews/`               | Create a mock interview           |
-| GET    | `/partners/mock-interviews/`               | List mock interviews              |
-| GET    | `/partners/mock-interviews/{id}/`          | Get specific mock interview       |
-| DELETE | `/partners/mock-interviews/{id}/`          | Delete a mock interview           |
+| POST   | `/partners/mock-interviews/`               | Create a job/resume interview     |
+| GET    | `/partners/mock-interviews/`               | List interviews                   |
+| GET    | `/partners/mock-interviews/{id}/`          | Get specific interview            |
+| DELETE | `/partners/mock-interviews/{id}/`          | Delete an interview               |
 | GET    | `/partners/mock-interviews/{id}/messages/` | Get interview messages/transcript |
 
 ## Authentication
@@ -56,84 +56,36 @@ const headers = {
 
 ## API Endpoints
 
-### Create Mock Interview
+### Create Job/Resume Interview
 
 **Endpoint**: `POST /partners/mock-interviews/`
 
-Creates a new mock interview session. Different focus areas require different parameters.
+Creates a new job-focused or resume-based interview session.
 
 #### Focus Areas (This Document)
 
-1. **SKILL** - Skill/topic-based interview
-2. **UNIVERSITY** - University admission interview
-3. **BEHAVIOURAL** - Behavioral interview
+1. **JOB** - Job-specific interview
+2. **RESUME** - Resume-based interview
 
-For **JOB** and **RESUME** focus areas, see [Jobs & Recruitment](./jobs-recruitment.md).
+For **SKILL**, **UNIVERSITY**, and **BEHAVIOURAL** focus areas, see [Mock Interviews](./mock-interviews.md).
 
 #### Request Body Parameters
 
 | Parameter    | Type   | Required | Description                                         |
 | ------------ | ------ | -------- | --------------------------------------------------- |
 | `email`      | string | Yes\*    | User email (required for API key auth)              |
-| `focus_area` | string | Yes      | One of: SKILL, UNIVERSITY, BEHAVIOURAL              |
+| `focus_area` | string | Yes      | One of: JOB, RESUME                                |
 
 **Focus-specific parameters:**
 
-**For SKILL focus area:**
+**For JOB focus area:**
 
-- `topic` (string, required)
-- `difficulty_level` (integer, optional: 1=Easy, 2=Medium, 3=Hard)
-- `target_company` (string, optional)
-- `additional_customization` (string, optional)
-- `number_of_questions` (integer, optional, min: 1, max: 10, default: 10)
-- `interviewer_gender` (one of male or female, optional, default: female)
-- `language` (string, optional, specifies interview language; default: `'en-us'`. Supported values are:
-  - `'en-us'` (English (US))
-  - `'en-uk'` (English (UK))
-  - `'en-in'` (English (Indian))
-  - `'en-au'` (English (Australian))
-  - `'hi'` (Hindi)
-  - `'ta'` (Tamil)
-  - `'bn'` (Bengali)
-  - `'te'` (Telugu)
-  - `'gu'` (Gujarati)
-  - `'kn'` (Kannada)
-  - `'ml'` (Malayalam)
-  - `'mr'` (Marathi)
-  - `'pa'` (Punjabi)  
-    )
-
-**For UNIVERSITY focus area:**
-
-- `university` (string, required)
-- `program` (string, required)
-- `additional_customization` (string, optional)
-- `number_of_questions` (integer, optional, min: 1, max: 10, default: 10)
-- `interviewer_gender` (one of male or female, optional, default: female)
-- `language` (string, optional, specifies interview language; default: `'en-us'`. Supported values are:
-  - `'en-us'` (English (US))
-  - `'en-uk'` (English (UK))
-  - `'en-in'` (English (Indian))
-  - `'en-au'` (English (Australian))
-  - `'hi'` (Hindi)
-  - `'ta'` (Tamil)
-  - `'bn'` (Bengali)
-  - `'te'` (Telugu)
-  - `'gu'` (Gujarati)
-  - `'kn'` (Kannada)
-  - `'ml'` (Malayalam)
-  - `'mr'` (Marathi)
-  - `'pa'` (Punjabi)  
-    )
-
-**For BEHAVIOURAL focus area:**
-
-- `behavioral_topic` (string, required)
-- `job_title` (string, optional)
-- `job_description` (string, optional)
-- `years_of_experience` (integer, optional)
+- `job_title` (string, required)
+- `job_description` (string, required)
+- `years_of_experience` (integer, required)
 - `industry` (string, optional)
 - `target_company` (string, optional)
+- `resume` (string, optional, plain text containing resume content)
 - `additional_customization` (string, optional)
 - `number_of_questions` (integer, optional, min: 1, max: 10, default: 10)
 - `interviewer_gender` (one of male or female, optional, default: female)
@@ -153,11 +105,34 @@ For **JOB** and **RESUME** focus areas, see [Jobs & Recruitment](./jobs-recruitm
   - `'pa'` (Punjabi)  
     )
 
-### List Mock Interviews
+**For RESUME focus area:**
+
+- `resume` (string, required, plain text containing resume content)
+- `target_company` (string, optional)
+- `additional_customization` (string, optional)
+- `number_of_questions` (integer, optional, min: 1, max: 10, default: 10)
+- `interviewer_gender` (one of male or female, optional, default: female)
+- `language` (string, optional, specifies interview language; default: `'en-us'`. Supported values are:
+  - `'en-us'` (English (US))
+  - `'en-uk'` (English (UK))
+  - `'en-in'` (English (Indian))
+  - `'en-au'` (English (Australian))
+  - `'hi'` (Hindi)
+  - `'ta'` (Tamil)
+  - `'bn'` (Bengali)
+  - `'te'` (Telugu)
+  - `'gu'` (Gujarati)
+  - `'kn'` (Kannada)
+  - `'ml'` (Malayalam)
+  - `'mr'` (Marathi)
+  - `'pa'` (Punjabi)  
+    )
+
+### List Interviews
 
 **Endpoint**: `GET /partners/mock-interviews/`
 
-Lists mock interviews with pagination and filtering.
+Lists interviews with pagination and filtering.
 
 #### Query Parameters
 
@@ -166,25 +141,25 @@ Lists mock interviews with pagination and filtering.
 | `page`       | integer | Page number (default: 1)                                          |
 | `page_size`  | integer | Items per page (default: 20, max: 100)                            |
 | `status`     | string  | Filter by status: UNATTEMPTED, IN_PROGRESS, COMPLETED, INCOMPLETE |
-| `focus_area` | string  | Filter by focus area: TOPIC, UNIVERSITY, BEHAVIORAL               |
+| `focus_area` | string  | Filter by focus area: JOB, RESUME                                 |
 
-### Get Mock Interview Details
+### Get Interview Details
 
 **Endpoint**: `GET /partners/mock-interviews/{id}/`
 
-Retrieves detailed information about a specific mock interview.
+Retrieves detailed information about a specific interview.
 
-### Delete Mock Interview
+### Delete Interview
 
 **Endpoint**: `DELETE /partners/mock-interviews/{id}/`
 
-Deletes a specific mock interview.
+Deletes a specific interview.
 
 ### Get Interview Messages
 
 **Endpoint**: `GET /partners/mock-interviews/{id}/messages/`
 
-Retrieves the conversation messages/transcript from a mock interview session.
+Retrieves the conversation messages/transcript from an interview session.
 
 #### Query Parameters for Video URLs
 
@@ -227,51 +202,51 @@ class SkilliraAPI {
     return headers;
   }
 
-  // Create a skill-focused mock interview
-  async createSkillInterview(data) {
+  // Create a job-focused interview
+  async createJobInterview(data) {
     const requestBody = {
-      focus_area: 'SKILL',
-      topic: data.topic,
-      difficulty_level: data.difficultyLevel,
-      target_company: data.targetCompany,
-      additional_customization: data.additionalCustomization,
-    };
-
-    if (this.apiKey && data.email) {
-      requestBody.email = data.email;
-    }
-
-    try {
-      const response = await fetch(
-        `${this.baseURL}/partners/mock-interviews/`,
-        {
-          method: 'POST',
-          headers: this.getHeaders(),
-          body: JSON.stringify(requestBody),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error('Error creating skill interview:', error);
-      throw error;
-    }
-  }
-
-  // Create a behavioral interview
-  async createBehavioralInterview(data) {
-    const requestBody = {
-      focus_area: 'BEHAVIOURAL',
-      behavioral_topic: data.behavioralTopic,
+      focus_area: 'JOB',
       job_title: data.jobTitle,
       job_description: data.jobDescription,
       years_of_experience: data.yearsOfExperience,
       industry: data.industry,
       target_company: data.targetCompany,
+      resume: data.resume,
+      additional_customization: data.additionalCustomization,
+    };
+
+    // Add email for API key authentication
+    if (this.apiKey && data.email) {
+      requestBody.email = data.email;
+    }
+
+    try {
+      const response = await fetch(
+        `${this.baseURL}/partners/mock-interviews/`,
+        {
+          method: 'POST',
+          headers: this.getHeaders(),
+          body: JSON.stringify(requestBody),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error creating job interview:', error);
+      throw error;
+    }
+  }
+
+  // Create a resume-based interview
+  async createResumeInterview(data) {
+    const requestBody = {
+      focus_area: 'RESUME',
+      resume: data.resume,
+      target_company: data.targetCompany,
       additional_customization: data.additionalCustomization,
     };
 
@@ -295,12 +270,12 @@ class SkilliraAPI {
 
       return await response.json();
     } catch (error) {
-      console.error('Error creating behavioral interview:', error);
+      console.error('Error creating resume interview:', error);
       throw error;
     }
   }
 
-  // List mock interviews with filters
+  // List interviews with filters
   async listInterviews(filters = {}) {
     const params = new URLSearchParams();
 
@@ -330,7 +305,7 @@ class SkilliraAPI {
     }
   }
 
-  // Get specific mock interview details
+  // Get specific interview details
   async getInterview(interviewId) {
     try {
       const response = await fetch(
@@ -352,7 +327,7 @@ class SkilliraAPI {
     }
   }
 
-  // Delete a mock interview
+  // Delete an interview
   async deleteInterview(interviewId) {
     try {
       const response = await fetch(
@@ -409,7 +384,43 @@ class SkilliraAPI {
 
 ### Usage Examples
 
-#### 1. Skill-Based Interview (JWT Auth)
+#### 1. Create a Job Interview (API Key Auth)
+
+```javascript
+// Initialize with API key
+const skillora = new SkilliraAPI({
+  baseURL: 'https://api.skillora.ai/v1',
+  apiKey: 'sk_your_api_key_here',
+});
+
+// Create a job interview
+const jobInterviewData = {
+  email: 'candidate@example.com', // Required for API key auth
+  jobTitle: 'Senior Software Engineer',
+  jobDescription:
+    'We are looking for a senior software engineer with experience in React, Node.js, and AWS...',
+  yearsOfExperience: 5,
+  industry: 'Technology',
+  targetCompany: 'Google',
+  additionalCustomization: 'Focus on system design and scalability questions',
+};
+
+try {
+  const result = await skillora.createJobInterview(jobInterviewData);
+  console.log('Interview created:', result);
+
+  // Access the interview URL
+  const interviewUrl = result.interview_url;
+  console.log('Interview URL:', interviewUrl);
+
+  // Access organization credits (API key auth only)
+  console.log('Remaining credits:', result.organization.remaining_credits);
+} catch (error) {
+  console.error('Failed to create interview:', error);
+}
+```
+
+#### 2. Create a Resume-Based Interview
 
 ```javascript
 // Initialize with JWT token
@@ -418,86 +429,71 @@ const skillora = new SkilliraAPI({
   jwtToken: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...',
 });
 
-// Create a skill-based interview
-const skillInterviewData = {
-  // No email required for JWT auth
-  topic: 'JavaScript Advanced Concepts',
-  difficultyLevel: 3, // Hard
-  targetCompany: 'Meta',
-  additionalCustomization:
-    'Focus on closures, prototypes, and async programming',
+// Create a resume-based interview
+const resumeInterviewData = {
+  resume: 'John Doe\nSenior Software Engineer\n5 years experience in...',
+  targetCompany: 'Amazon',
+  additionalCustomization: 'Focus on leadership principles',
 };
 
 try {
-  const result = await skillora.createSkillInterview(skillInterviewData);
-  console.log('Skill interview created:', result);
+  const result = await skillora.createResumeInterview(resumeInterviewData);
+  console.log('Resume interview created:', result);
 } catch (error) {
-  console.error('Failed to create skill interview:', error);
+  console.error('Failed to create resume interview:', error);
 }
 ```
 
-#### 2. Create University Interview
+#### 3. Create a Job Interview with Resume
 
 ```javascript
-const universityInterviewData = {
-  email: 'student@example.com', // Required for API key auth
-  university: 'Stanford University',
-  program: 'Computer Science PhD',
-  additionalCustomization:
-    'Focus on research experience and academic background',
+const jobWithResumeData = {
+  email: 'candidate@example.com',
+  jobTitle: 'Product Manager',
+  jobDescription: 'Leading product strategy for our SaaS platform...',
+  yearsOfExperience: 7,
+  industry: 'SaaS',
+  targetCompany: 'Stripe',
+  resume: 'Jane Smith\nProduct Manager\n7 years experience in SaaS...',
+  additionalCustomization: 'Focus on product strategy and metrics',
 };
 
-const skillora = new SkilliraAPI({
-  baseURL: 'https://api.skillora.ai/v1',
-  apiKey: 'sk_your_api_key_here',
-});
-
 try {
-  const response = await fetch(
-    `${skillora.baseURL}/partners/mock-interviews/`,
-    {
-      method: 'POST',
-      headers: skillora.getHeaders(),
-      body: JSON.stringify({
-        focus_area: 'UNIVERSITY',
-        ...universityInterviewData,
-      }),
-    }
-  );
-
-  const result = await response.json();
-  console.log('University interview created:', result);
+  const result = await skillora.createJobInterview(jobWithResumeData);
+  console.log('Job interview with resume created:', result);
 } catch (error) {
-  console.error('Error:', error);
+  console.error('Failed to create interview:', error);
 }
 ```
 
-#### 3. List and Filter Interviews
+#### 4. List and Filter Job Interviews
 
 ```javascript
-// List all interviews with pagination
-const interviews = await skillora.listInterviews({
+// List all job interviews
+const jobInterviews = await skillora.listInterviews({
+  focusArea: 'JOB',
   page: 1,
   pageSize: 20,
 });
 
-console.log('Total interviews:', interviews.pagination.total);
-console.log('Interviews:', interviews.results);
+console.log('Total job interviews:', jobInterviews.pagination.total);
+console.log('Interviews:', jobInterviews.results);
 
-// Filter by status
-const completedInterviews = await skillora.listInterviews({
+// Filter completed job interviews
+const completedJobInterviews = await skillora.listInterviews({
+  focusArea: 'JOB',
   status: 'COMPLETED',
   page: 1,
   pageSize: 10,
 });
 
-// Filter by focus area
-const skillInterviews = await skillora.listInterviews({
-  focusArea: 'SKILL',
+// List resume-based interviews
+const resumeInterviews = await skillora.listInterviews({
+  focusArea: 'RESUME',
 });
 ```
 
-#### 4. Get Interview Details and Messages
+#### 5. Get Interview Details and Messages
 
 ```javascript
 const interviewId = 'uuid-of-interview';
@@ -551,18 +547,18 @@ console.log('All messages with videos:', allMessages);
     "created_at": "2024-01-15T10:30:00Z",
     "started_at": null,
     "ended_at": null,
-    "focus_area": "SKILL",
-    "job_title": null,
-    "job_description": null,
-    "years_of_experience": null,
-    "industry": null,
-    "target_company": "Meta",
+    "focus_area": "JOB",
+    "job_title": "Senior Software Engineer",
+    "job_description": "...",
+    "years_of_experience": 5,
+    "industry": "Technology",
+    "target_company": "Google",
     "additional_customization": "...",
-    "topic": "JavaScript Advanced Concepts",
+    "topic": null,
     "behavioral_topic": null,
     "university": null,
     "program": null,
-    "difficulty_level": 3,
+    "difficulty_level": null,
     "resume": null,
     "analysis": null,
     "learning_resources": {},
@@ -570,7 +566,7 @@ console.log('All messages with videos:', allMessages);
     "strong_areas": {},
     "key_area_assessments": {}
   },
-  "interview_url": "https://app.skillora.ai/embed/ai-interview/123e4567-e89b-12d3-a456-426614174000/?resume=false&status=UNATTEMPTED&header=JavaScript Advanced Concepts&organization_id=org-uuid",
+  "interview_url": "https://app.skillora.ai/embed/ai-interview/123e4567-e89b-12d3-a456-426614174000/?resume=false&status=UNATTEMPTED&header=Senior Software Engineer&organization_id=org-uuid",
   "tokens": {
     "access": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
     "refresh": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
@@ -600,11 +596,11 @@ console.log('All messages with videos:', allMessages);
       "status": "COMPLETED",
       "created_at": "2024-01-15T10:30:00Z",
       "started_at": "2024-01-15T10:35:00Z",
-      "focus_area": "SKILL",
-      "job_title": null,
-      "target_company": "Meta",
-      "difficulty_level": 3,
-      "topic": "JavaScript Advanced Concepts",
+      "focus_area": "JOB",
+      "job_title": "Senior Software Engineer",
+      "target_company": "Google",
+      "difficulty_level": null,
+      "topic": null,
       "behavioral_topic": null,
       "weak_areas": {},
       "strong_areas": {},
@@ -763,7 +759,7 @@ async makeRequest(url, options) {
 
 // Usage with error handling
 try {
-  const result = await skillora.createSkillInterview(skillData);
+  const result = await skillora.createJobInterview(jobData);
   console.log('Success:', result);
 } catch (error) {
   if (error instanceof SkilliraAPIError) {
@@ -863,10 +859,10 @@ class SkilliraAPIWithCache extends SkilliraAPI {
 ### 4. Batch Operations
 
 ```javascript
-// Create multiple interviews efficiently
-async function createBatchInterviews(skillora, interviewsData) {
+// Create multiple job interviews efficiently
+async function createBatchJobInterviews(skillora, interviewsData) {
   const results = await Promise.allSettled(
-    interviewsData.map((data) => skillora.createSkillInterview(data))
+    interviewsData.map((data) => skillora.createJobInterview(data))
   );
 
   const successful = results
@@ -905,85 +901,6 @@ messagesWithVideos.results.forEach((message) => {
     document.getElementById('video-container').appendChild(videoElement);
   }
 });
-```
-
-#### Optimized Video Loading Strategy
-
-```javascript
-class VideoManager {
-  constructor(skillora) {
-    this.skillora = skillora;
-    this.videoCache = new Map();
-  }
-
-  // Lazy load videos only when user clicks play
-  async setupLazyVideoLoading(interviewId, containerId) {
-    // First, get messages without video URLs (faster)
-    const messages = await this.skillora.getInterviewMessages(interviewId);
-
-    messages.results.forEach((message) => {
-      if (message.video_url) {
-        this.createVideoPlaceholder(message, containerId);
-      }
-    });
-  }
-
-  createVideoPlaceholder(message, containerId) {
-    const container = document.getElementById(containerId);
-
-    // Create video placeholder
-    const placeholder = document.createElement('div');
-    placeholder.className = 'video-placeholder';
-    placeholder.innerHTML = `
-      <div class="video-thumbnail">
-        <button onclick="this.loadVideo('${message.id}')">
-          ▶️ Play Video Response
-        </button>
-        <small>Click to load video</small>
-      </div>
-    `;
-
-    placeholder.loadVideo = async (messageId) => {
-      if (this.videoCache.has(messageId)) {
-        this.showVideo(placeholder, this.videoCache.get(messageId));
-        return;
-      }
-
-      // Fetch video URL on demand
-      const messagesWithVideos = await this.skillora.getInterviewMessages(
-        message.mock_assessment,
-        1,
-        true
-      );
-
-      const messageWithVideo = messagesWithVideos.results.find(
-        (m) => m.id === messageId
-      );
-      if (messageWithVideo?.video_presigned_url) {
-        this.videoCache.set(messageId, messageWithVideo.video_presigned_url);
-        this.showVideo(placeholder, messageWithVideo.video_presigned_url);
-      }
-    };
-
-    container.appendChild(placeholder);
-  }
-
-  showVideo(placeholder, videoUrl) {
-    const video = document.createElement('video');
-    video.src = videoUrl;
-    video.controls = true;
-    video.autoplay = true;
-    video.style.width = '100%';
-    video.style.maxWidth = '600px';
-
-    placeholder.innerHTML = '';
-    placeholder.appendChild(video);
-  }
-}
-
-// Usage
-const videoManager = new VideoManager(skillora);
-await videoManager.setupLazyVideoLoading(interviewId, 'interview-container');
 ```
 
 #### React Component Example
@@ -1103,9 +1020,10 @@ function handleInterviewCompleted(data) {
 
 ### Common Integration Scenarios
 
-1. **Learning Management Systems (LMS)**: Integrate interview creation and results into your course platforms
-2. **Educational Apps**: Provide interview practice as part of career preparation tools
-3. **Corporate Training**: Create customized interview simulations for employee development
+1. **HR Platforms**: Add interview scheduling and candidate assessment to recruitment workflows
+2. **Applicant Tracking Systems (ATS)**: Integrate job-specific interviews into hiring pipelines
+3. **Career Services**: Provide job interview practice for career preparation
+4. **Recruitment Agencies**: Offer pre-screening interviews for candidates
 
 ### API Versioning
 
