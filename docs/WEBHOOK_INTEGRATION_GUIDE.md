@@ -2,7 +2,7 @@
 
 ## Overview
 
-Skillora provides webhooks to notify your application when important events occur, such as when interviews or mock interviews are completed. This guide covers everything you need to know to integrate with Skillora's webhook system.
+Skillora provides webhooks to notify your application when important events occur, such as when a job is created, updated or deleted, when a candidate's resume analysis is ready, or when interviews and mock interviews are completed. This guide covers everything you need to know to integrate with Skillora's webhook system.
 
 ## Table of Contents
 
@@ -55,10 +55,188 @@ To receive webhooks, you need to create a webhook endpoint in your Skillora orga
 
 Currently, Skillora supports the following webhook events:
 
+- `job_created` - Triggered when a job is created (draft or published)
+- `job_updated` - Triggered when a job is edited or published
+- `job_deleted` - Triggered when a job is deleted
+- `resume_analysis_completed` - Triggered when a candidate's resume has been screened and the analysis report is ready
 - `interview_completed` - Triggered when a candidate completes an interview
 - `mock_interview_completed` - Triggered when a user completes a mock interview
 
+The subscription key (for example `job_created`) is what you put in an endpoint's `events` list and what arrives in the `X-Webhook-Event` header. Unknown event names are rejected with a 400 when you create or update an endpoint.
+
 ## Webhook Events
+
+### Job Created Event
+
+**Event Type:** `job_created`
+
+**Triggered When:** A job is created in your organization, from the dashboard or the API. Jobs created as drafts fire this event too; check `is_draft`.
+
+**Payload Structure:**
+
+```json
+{
+  "event": "job.created",
+  "timestamp": "2026-10-06T10:15:00+00:00",
+  "data": {
+    "job_id": "625f8f83-1e09-4b0b-9dde-37c17f692311",
+    "job_url": "https://app.skillora.ai/org/jobs/625f8f83-1e09-4b0b-9dde-37c17f692311",
+    "organization_id": "cefe8bf1-0f7b-4736-9b7a-a73bca68c1e5",
+    "title": "Senior Backend Engineer",
+    "description": "<p>Build Django APIs.</p>",
+    "skills": ["Python", "Django"],
+    "location": "Remote",
+    "workplace_type": "REMOTE",
+    "job_type": "FULL_TIME",
+    "required_yoe": 3,
+    "is_draft": false,
+    "created_at": "2026-10-06T10:15:00+00:00",
+    "updated_at": "2026-10-06T10:15:00+00:00"
+  }
+}
+```
+
+**Field Descriptions:**
+
+- `job_id`: Unique identifier for the job
+- `job_url`: Link to the job in the Skillora dashboard
+- `description`: Job description as HTML
+- `workplace_type`: One of `ON_SITE`, `HYBRID`, `REMOTE`
+- `job_type`: One of `FULL_TIME`, `PART_TIME`, `CONTRACT`, `TEMPORARY`, `FRACTIONAL`, `VOLUNTEER`, `INTERNSHIP`
+- `required_yoe`: Required years of experience
+- `is_draft`: `true` while the job is unpublished
+
+### Job Updated Event
+
+**Event Type:** `job_updated`
+
+**Triggered When:** A job's details change, including publishing a draft (`is_draft` changes from `true` to `false`). Saving a job without changing anything does not send an event.
+
+**Payload Structure:** The same `data` fields as `job_created`, showing the job after the change, plus:
+
+```json
+{
+  "event": "job.updated",
+  "timestamp": "2026-10-06T11:02:00+00:00",
+  "data": {
+    "job_id": "625f8f83-1e09-4b0b-9dde-37c17f692311",
+    "title": "Senior Backend Engineer",
+    "location": "London, UK",
+    "...": "all other job_created fields",
+    "changed_fields": ["location"],
+    "previous_values": {
+      "location": "Remote"
+    }
+  }
+}
+```
+
+**Field Descriptions:**
+
+- `changed_fields`: Which of `title`, `description`, `skills`, `location`, `workplace_type`, `job_type`, `is_draft`, `required_yoe` changed
+- `previous_values`: The value of each changed field before the update
+
+### Job Deleted Event
+
+**Event Type:** `job_deleted`
+
+**Triggered When:** A job is deleted. The job's candidates and interviews are deleted with it.
+
+**Payload Structure:** A snapshot of the job as it was when deleted (the same `data` fields as `job_created`), with `job_url` set to `null` and a `deleted_at` timestamp:
+
+```json
+{
+  "event": "job.deleted",
+  "timestamp": "2026-10-06T12:30:00+00:00",
+  "data": {
+    "job_id": "625f8f83-1e09-4b0b-9dde-37c17f692311",
+    "job_url": null,
+    "title": "Senior Backend Engineer",
+    "...": "all other job_created fields",
+    "deleted_at": "2026-10-06T12:30:00+00:00"
+  }
+}
+```
+
+### Resume Analysis Completed Event
+
+**Event Type:** `resume_analysis_completed`
+
+**Triggered When:** A candidate's resume has been scored against the job's Resume Screening criteria and the report is ready. This only happens for jobs with an active Resume Screening configuration, and covers every candidate with a resume, including those you create through `POST /partners/candidates/` with a resume URL or file. It fires again each time a candidate is re-screened (for example after the criteria change), and every run has its own `analysis_id`. Keep the latest `completed_at` per `candidate_id` if you only want the current report.
+
+**Payload Structure:**
+
+```json
+{
+  "event": "resume_analysis.completed",
+  "timestamp": "2026-10-06T10:20:00+00:00",
+  "data": {
+    "analysis_id": "0b7c2f9e-3a8d-4f61-9b2e-6c1d4e5f7a80",
+    "candidate_id": "8d2e4f6a-1b3c-4d5e-9f7a-2b4c6d8e0f12",
+    "job_id": "625f8f83-1e09-4b0b-9dde-37c17f692311",
+    "job_title": "Senior Backend Engineer",
+    "job_url": "https://app.skillora.ai/org/jobs/625f8f83-1e09-4b0b-9dde-37c17f692311",
+    "candidate": {
+      "id": "8d2e4f6a-1b3c-4d5e-9f7a-2b4c6d8e0f12",
+      "first_name": "Ada",
+      "last_name": "Lovelace",
+      "email": "ada@example.com",
+      "phone_number": "+44 20 7946 0000",
+      "linkedin_url": "https://www.linkedin.com/in/example",
+      "status": "SHORTLISTED"
+    },
+    "overall_score": 78.0,
+    "recommendation": "MATCH",
+    "confidence": 0.8,
+    "must_haves_passed": 3,
+    "must_haves_total": 3,
+    "preferred_score": 76.0,
+    "signal_score": 70.0,
+    "disqualifier_triggered": false,
+    "disqualifier_reasons": [],
+    "red_flags": [
+      {
+        "criterion_id": "4f5a6b7c-8d9e-4f0a-b1c2-d3e4f5a6b7c8",
+        "name": "Frequent job changes",
+        "reason": "Three roles in the last two years."
+      }
+    ],
+    "strength_summary": "Strong Python and Django background with production API work.",
+    "gap_summary": "Limited evidence of system design at scale.",
+    "criteria_evaluations": [
+      {
+        "criterion_id": "1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+        "name": "3+ years Python",
+        "category": "MUST_HAVE",
+        "criterion_type": "NUMERIC",
+        "points": 40,
+        "pass_status": "PASS",
+        "score": 10.0,
+        "justification": "Five years of Python across two roles.",
+        "evidence_quote": "Backend Engineer (Python/Django), 2021 to present"
+      }
+    ],
+    "screening_config": {
+      "id": "9e8d7c6b-5a4f-4e3d-8c2b-1a0f9e8d7c6b",
+      "version": 2
+    },
+    "completed_at": "2026-10-06T10:20:00+00:00"
+  }
+}
+```
+
+**Field Descriptions:**
+
+- `analysis_id`: Unique identifier for this screening run
+- `overall_score`: Screening score (0-100)
+- `recommendation`: One of `STRONG_MATCH`, `MATCH`, `STRETCH`, `NO_MATCH`
+- `confidence`: Model confidence (0-1), reduced for each red flag
+- `must_haves_passed` / `must_haves_total`: Must-have criteria met out of total
+- `preferred_score` / `signal_score`: Percentage achieved on preferred and signal criteria
+- `disqualifier_triggered`: `true` when a disqualifier matched; the score is then capped and the recommendation is `NO_MATCH`
+- `red_flags`: Advisory warnings; they never change the score or recommendation
+- `criteria_evaluations`: Per-criterion verdict. `category` is one of `MUST_HAVE`, `PREFERRED`, `SIGNAL`, `RED_FLAG`, `DISQUALIFIER`; `pass_status` is one of `PASS`, `PARTIAL`, `FAIL`, `UNKNOWN`; `score` is 0-10
+- `screening_config`: The screening criteria version the candidate was scored against
 
 ### Interview Completed Event
 

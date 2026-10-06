@@ -165,11 +165,69 @@ Creates a new candidate for a job. Optionally generates an interview link.
 | `email`            | string  | Yes      | Candidate's email address                                       |
 | `phone_number`     | string  | No       | Phone number                                                    |
 | `linkedin_url`     | string  | No       | LinkedIn profile URL                                            |
-| `resume`           | string  | No       | Resume URL                                                      |
+| `resume`           | string / file | No | Link to a PDF or DOCX resume Skillora can download, or the resume file itself (see below) |
+| `resume_type`      | string  | No       | `url` or `file`. `file` makes a resume file required             |
 | `status`           | string  | No       | Initial status (default: `SHORTLISTED`)                         |
 | `create_interview` | boolean | No       | If `true`, creates an interview link for the candidate          |
 
 **Important**: When `create_interview` is `true`, the job must have an active interview configuration. The candidate status is automatically set to `INVITED` when an interview is created.
+
+**Resume screening**: when you send a resume (URL or file), Skillora parses it in the background. If the job has active Resume Screening criteria, the candidate is then scored against them and you receive the [`resume_analysis_completed`](./WEBHOOK_INTEGRATION_GUIDE.md#resume-analysis-completed-event) webhook. If the job has no criteria yet, candidates are scored once criteria are added and screening is re-run from the Skillora dashboard.
+
+##### Uploading a resume file
+
+Instead of a URL, you can send the resume file itself. Send the request as `multipart/form-data` instead of JSON, with the file under `resume` and every other parameter as a text field in the same form.
+
+- **Formats**: PDF, DOCX, DOC, RTF or TXT. Prefer PDF or DOCX. Skillora reads the resume text to tailor the candidate's interview, and it can't read text from legacy (pre-2007) `.doc` files. Those are still stored, but the interview won't draw on the resume.
+- **Size**: up to 10MB. Empty files are rejected.
+- **Content**: the file's content must match its extension. A file renamed to `.pdf` that isn't a PDF is rejected.
+- **Response**: `candidate.resume` holds Skillora's storage key for the file (for example `resumes/<job-id>/<file-id>.pdf`), not a URL.
+- A resume can only be attached when the candidate is created. `PATCH` can't change it.
+
+```bash
+curl -X POST https://api.skillora.ai/v1/partners/candidates/ \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -F job_id=dece7e04-b488-4b66-88cd-e3add451110b \
+  -F first_name=Jane \
+  -F last_name=Smith \
+  -F email=jane.smith@example.com \
+  -F create_interview=true \
+  -F resume=@jane-smith.pdf
+```
+
+```javascript
+const form = new FormData();
+form.append('job_id', 'dece7e04-b488-4b66-88cd-e3add451110b');
+form.append('first_name', 'Jane');
+form.append('last_name', 'Smith');
+form.append('email', 'jane.smith@example.com');
+form.append('create_interview', 'true');
+// A File keeps its own name. For a Blob, pass a file name with the right
+// extension, e.g. form.append('resume', blob, 'jane-smith.pdf').
+form.append('resume', fileInput.files[0]);
+
+// Don't set Content-Type yourself; fetch adds the multipart boundary.
+const response = await fetch('https://api.skillora.ai/v1/partners/candidates/', {
+  method: 'POST',
+  headers: { Authorization: `Bearer ${apiKey}` },
+  body: form,
+});
+```
+
+**Resume errors** (`400 Bad Request`, returned before anything is stored):
+
+| `error`                                                                  | Cause                                                        |
+| ------------------------------------------------------------------------ | ------------------------------------------------------------ |
+| `Resume file too large (11.0MB). Maximum size is 10MB.`                  | File is over 10MB                                            |
+| `Invalid resume file type ".png". Allowed: .doc, .docx, .pdf, .rtf, .txt` | Unsupported extension                                       |
+| `Invalid resume content type "text/html". ...`                           | The file part's `Content-Type` isn't a document type         |
+| `Resume file content does not match its ".pdf" extension.`               | File content doesn't match its extension                     |
+| `Resume file is empty.`                                                  | Zero-byte file                                               |
+| `Resume file is required when resume_type is "file". ...`                | `resume_type=file` sent without a file                       |
+| `resume_type must be either "url" or "file"`                             | Unknown `resume_type`                                        |
+| `Resume must be a valid URL`                                             | `resume` sent as text that isn't a URL                       |
+
+If storing the file fails, the API returns `500` with `"error": "Failed to store resume file"` and no candidate is created, so the request is safe to retry.
 
 ---
 
@@ -227,6 +285,8 @@ Updates a candidate's information. Only the provided fields are updated.
 | `email`        | string | Updated email address                                                                                            |
 | `phone_number` | string | Updated phone number                                                                                             |
 | `linkedin_url` | string | Updated LinkedIn URL                                                                                             |
+
+The resume can't be changed with `PATCH`. Attach it when you create the candidate.
 
 ---
 
@@ -348,8 +408,11 @@ class SkillораHiringAPI {
     this.jwtToken = config.jwtToken;
   }
 
-  getHeaders() {
-    const headers = { 'Content-Type': 'application/json' };
+  getHeaders(body) {
+    // FormData bodies (resume uploads) need fetch to set the multipart
+    // Content-Type with its boundary, so only JSON bodies get one here.
+    const headers =
+      body instanceof FormData ? {} : { 'Content-Type': 'application/json' };
     if (this.apiKey) {
       headers['Authorization'] = `Bearer ${this.apiKey}`;
     } else if (this.jwtToken) {
@@ -361,7 +424,7 @@ class SkillораHiringAPI {
   async request(path, options = {}) {
     const url = `${this.baseURL}${path}`;
     const response = await fetch(url, {
-      headers: this.getHeaders(),
+      headers: this.getHeaders(options.body),
       ...options,
     });
     if (!response.ok) {
@@ -422,6 +485,20 @@ class SkillораHiringAPI {
     return this.request('/partners/candidates/', {
       method: 'POST',
       body: JSON.stringify(data),
+    });
+  }
+
+  // resumeFile: a File, or a Blob plus a fileName with the right extension.
+  // PDF, DOCX, DOC, RTF or TXT, up to 10MB.
+  async createCandidateWithResumeFile(data, resumeFile, fileName) {
+    const form = new FormData();
+    Object.entries(data).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) form.append(key, String(value));
+    });
+    form.append('resume', resumeFile, fileName);
+    return this.request('/partners/candidates/', {
+      method: 'POST',
+      body: form,
     });
   }
 
@@ -539,6 +616,27 @@ console.log('Candidate created:', result.candidate.id);
 console.log('Interview URL:', result.interview.interview_url);
 ```
 
+To upload the resume file instead of linking to it:
+
+```javascript
+const candidateData = {
+  job_id: 'dece7e04-b488-4b66-88cd-e3add451110b',
+  first_name: 'Jane',
+  last_name: 'Smith',
+  email: 'jane.smith@example.com',
+  create_interview: true,
+};
+
+// Browser: a File from an <input type="file">
+await skillora.createCandidateWithResumeFile(candidateData, fileInput.files[0]);
+
+// Node.js 18+: read the file into a Blob and give it a name
+import { readFile } from 'node:fs/promises';
+
+const resume = new Blob([await readFile('./jane-smith.pdf')]);
+await skillora.createCandidateWithResumeFile(candidateData, resume, 'jane-smith.pdf');
+```
+
 #### 3. Track Interview Progress
 
 ```javascript
@@ -647,6 +745,8 @@ await skillora.updateCandidate('candidate-uuid', {
 ```
 
 ### Create Candidate Response
+
+`candidate.resume` is the URL you sent, or Skillora's storage key (for example `resumes/<job-id>/<file-id>.pdf`) when you uploaded the file.
 
 ```json
 {
@@ -857,6 +957,14 @@ await skillora.updateCandidate('candidate-uuid', {
   "error": "No valid fields to update. Allowed: email, first_name, last_name, linkedin_url, phone_number, status"
 }
 ```
+
+```json
+{
+  "error": "Resume file too large (11.0MB). Maximum size is 10MB."
+}
+```
+
+See [Uploading a resume file](#uploading-a-resume-file) for every resume upload error.
 
 #### 401 Unauthorized
 
